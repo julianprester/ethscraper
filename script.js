@@ -7,7 +7,7 @@ d3.csv("data/outgoing.csv", function(error, data) {
 });
 
 d3.csv("data/address.csv", function(error, data) {
-  makeGraph(processData(data, "Unique Addresses"), "#address-plot");
+  makeGraph(processData(data, "New Addresses"), "#address-plot");
 });
 
 $(function() {
