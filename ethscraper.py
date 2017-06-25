@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import numpy as np
 
 output_dir = './data/'
 base_url ='http://api.etherscan.io/api?module=account&action=txlist&address={}&startblock=0&endblock=99999999&sort=asc'
@@ -38,6 +39,7 @@ def preprocess(df):
 
     df['value'] = pd.to_numeric(df['value'], errors='coerce').astype(float)
     df['value'] = df['value'] / 1000000000000000000
+    df = df.where(np.abs(df['value'] - df['value'].mean()) <= (3 * df['value'].std()))
 
     df['timeStamp'] = pd.to_datetime(df['timeStamp'], unit='s').dt.date
     df.columns = ['from', 'date', 'to', 'value']
