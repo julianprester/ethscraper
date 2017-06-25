@@ -39,7 +39,7 @@ def preprocess(df):
 
     df['value'] = pd.to_numeric(df['value'], errors='coerce').astype(float)
     df['value'] = df['value'] / 1000000000000000000
-    df = df.where(np.abs(df['value'] - df['value'].mean()) <= (3 * df['value'].std()))
+    df = df.loc[np.abs(df['value'] - df['value'].mean()) <= (3 * df['value'].std()), :]
 
     df['timeStamp'] = pd.to_datetime(df['timeStamp'], unit='s').dt.date
     df.columns = ['from', 'date', 'to', 'value']
@@ -56,8 +56,11 @@ def build_incoming_data(df):
     """
     df = df.where(df['to'] == address).loc[:, ['date', 'value']]
     df = df.groupby('date', as_index=False).sum()
+    df = df.set_index('date', drop=True)
+    idx = pd.date_range(df.index.min(), df.index.max())
+    df = df.reindex(idx, fill_value=0)
     df['cumulative'] = df.value.cumsum()
-    df.to_csv(output_dir + 'incoming.csv', index=False)
+    df.to_csv(output_dir + 'incoming.csv', index=True, index_label='date')
 
 def build_outgoing_data(df):
     """Build the dataframe for the outgoing transactions plot
@@ -68,9 +71,11 @@ def build_outgoing_data(df):
         The preprocessed Pandas dataframe
     """
     df = df.where(df['from'] == address).loc[:, ['date', 'value']]
-    df = df.groupby('date', as_index=False).sum()
+    df = df.groupby('date').sum()
+    idx = pd.date_range(df.index.min(), df.index.max())
+    df = df.reindex(idx, fill_value=0)
     df['cumulative'] = df.value.cumsum()
-    df.to_csv(output_dir + 'outgoing.csv', index=False)
+    df.to_csv(output_dir + 'outgoing.csv', index=True, index_label='date')
 
 def build_address_data(df):
     """Build the dataframe for the unique addresses plot
@@ -82,10 +87,12 @@ def build_address_data(df):
     """
     df = df.where(df['to'] == address).loc[:, ['date', 'from']]
     df = df.groupby('from', as_index=False).min()
-    df = df.groupby('date', as_index=False).count()
-    df.columns = ['date', 'value']
+    df = df.groupby('date').count()
+    df.columns = ['value']
+    idx = pd.date_range(df.index.min(), df.index.max())
+    df = df.reindex(idx, fill_value=0)
     df['cumulative'] = df.value.cumsum()
-    df.to_csv(output_dir + 'address.csv', index=False)
+    df.to_csv(output_dir + 'address.csv', index=True, index_label='date')
 
 def main():
     df = get_transactions(address)
