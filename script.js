@@ -17,27 +17,23 @@ $(function() {
 });
 
 function makeGraph(data, id) {
-  var chart;
-  var chartData;
   nv.addGraph(function() {
-    chart = nv.models.linePlusBarChart()
+    var chart = nv.models.linePlusBarChart()
         .margin({bottom: 80, left: 60, right: 60})
         .focusEnable(false)
-        .tooltips(false)
-        .interactive(false)
-        .x(function(d,i) {return i})
+        .x(function(d,i) {return new Date(d[0])})
         .y(function(d,i) {return d[1]});
 
+    //chart.useInteractiveGuideline(true);
     chart.xAxis.tickFormat(function(d) {
-      var dx = data[0].values[d] && data[0].values[d][0] || 0;
-      return d3.time.format('%d %b')(new Date(dx))
+      return d3.time.format('%d %b')(new Date(d))
     }).showMaxMin(false);
     chart.xAxis.rotateLabels(-45);
     chart.y1Axis.tickFormat(d3.format(',f')).showMaxMin(false);
     chart.y2Axis.tickFormat(d3.format(',f')).showMaxMin(false);
     chart.bars.forceY([0]);
 
-    chartData = d3.select(id)
+    var chartData = d3.select(id)
       .append("svg")
       .datum(data)
       .transition()
