@@ -37,11 +37,13 @@ def preprocess(df):
     """
     df.drop(df.columns[[0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 15]], axis=1, inplace=True)
 
-    df['value'] = pd.to_numeric(df['value'], errors='coerce').astype(float)
+    df['value'] = df['value'].astype(float)
     df['value'] = df['value'] / 1000000000000000000
     df = df.loc[np.abs(df['value'] - df['value'].mean()) <= (3 * df['value'].std()), :]
 
-    df['timeStamp'] = pd.to_datetime(df['timeStamp'], unit='s').dt.date
+    df['timeStamp'] = df['timeStamp'].astype(int)
+    df['timeStamp'] = pd.to_datetime(df['timeStamp'], unit='s')
+    df['timeStamp'] = df['timeStamp'].apply(lambda x: x.date())
     df.columns = ['from', 'date', 'to', 'value']
     df = df[['date', 'from', 'to', 'value']]
     return df
