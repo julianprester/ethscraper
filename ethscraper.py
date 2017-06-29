@@ -56,7 +56,7 @@ def build_incoming_data(df):
     df : Pandas dataframe
         The preprocessed Pandas dataframe
     """
-    df = df.where(df['to'] == address).loc[:, ['date', 'value']]
+    df = df[df['to'] == address].loc[:, ['date', 'value']]
     df = df.groupby('date', as_index=False).sum()
     df = df.set_index('date', drop=True)
     idx = pd.date_range(df.index.min(), df.index.max())
@@ -72,7 +72,7 @@ def build_outgoing_data(df):
     df : Pandas dataframe
         The preprocessed Pandas dataframe
     """
-    df = df.where(df['from'] == address).loc[:, ['date', 'value']]
+    df = df[df['from'] == address].loc[:, ['date', 'value']]
     df = df.groupby('date').sum()
     idx = pd.date_range(df.index.min(), df.index.max())
     df = df.reindex(idx, fill_value=0)
@@ -87,7 +87,7 @@ def build_address_data(df):
     df : Pandas dataframe
         The preprocessed Pandas dataframe
     """
-    df = df.where(df['to'] == address).loc[:, ['date', 'from']]
+    df = df[df['to'] == address].loc[:, ['date', 'from']]
     df = df.groupby('from', as_index=False).min()
     df = df.groupby('date').count()
     df.columns = ['value']
